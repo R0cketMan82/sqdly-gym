@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+/android/
+/ios/
+/dist/
+*.log
+*.tsbuildinfo
+.env
+.env.*
+credentials.json
+*.jks
+*.keystore
+*.p12
+*.mobileprovision

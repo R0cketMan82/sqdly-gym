@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "SQDLY Gym Dev",
+    "slug": "sqdly-gym",
+    "version": "0.1.0",
+    "scheme": "sqdly-gym-dev",
+    "ios": {
+      "bundleIdentifier": "com.sqdly.gym.dev",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.sqdly.gym.dev"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bc6f3005-8a42-47eb-9977-d80c82f7732a"
+      }
+    },
+    "owner": "r0cketman82"
+  }
+}
