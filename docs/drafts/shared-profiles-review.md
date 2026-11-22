@@ -30,6 +30,16 @@ row-count check. The CLI then applied the single pending migration.
   respectively and rolled back their fixtures. This deployment used a
   browser for SQDLY and the live mobile API for Gym. A manual screen check
   on each physical phone remains separate.
+- **Follow-up regression run, 2026-11-22.** All 41 selected Preview integration,
+  browser and responsive tests passed. They covered private profile access,
+  discovery, rosters, directory reads, signup and recovery callbacks, language,
+  avatar replacement, and deletion. Email delivery was mocked for the callback
+  tests. The deletion confirmation UI ran on six emulated viewports.
+  All 82 SQDLY unit tests and seven local image tests passed, as did Gym's
+  TypeScript check. On Windows the unit runner needed explicit test filenames,
+  and the image suite used a static readiness URL after its homepage probe
+  timed out. After fixture cleanup, a fresh hosted web edit reached Gym's RPC
+  and all 23 shared profiles reconciled with zero mismatches.
 
 ## Home location and visibility
 
