@@ -74,11 +74,19 @@ sign-in, and denial after local sign-out with a disposable Preview account.
 Secure session persistence, direct Gym signup, and email confirmation and
 recovery links remain separate integration work.
 
+**Shared table on Preview, 2026-11-22.** SQDLY migration
+`20261122100000_create_shared_profiles.sql` is applied. All 117 versions
+matched the repository. All 23 existing profiles matched across UUID and
+copied fields. SQDLY still reads and writes `public.profiles`. Its trigger
+updates `shared.profiles` in the same transaction. Gym's existing RPC reads
+the shared row. A hosted SQDLY web edit reached Gym's RPC in a separate
+authenticated session. See the [verification record](drafts/shared-profiles-review.md#hosted-preview-verification).
+
 ## Target boundaries
 
 | Owner | Data and interfaces |
 | --- | --- |
-| Shared platform | Supabase `auth` for identities and credentials. Proposed `shared.profiles` for Auth UUID, stable member number, display name, optional profile image, optional city/country, and saved EN/DE language when selected. Keep precise location, street address, and product settings outside the shared contract. |
+| Shared platform | Supabase `auth` for identities and credentials. On Preview, `shared.profiles` holds Auth UUID, stable member number, display name, optional profile image reference, owner-visible home location label/country, and saved EN/DE language. The target includes one private home location for distance calculations and a separate city-only projection for other viewers. Product settings stay with their product. |
 | SQDLY | Existing `public` objects and SQDLY-owned workers, buckets, jobs, settings, and subscriptions. Preserve current web interfaces during the profile transition. |
 | Gym | `gym` for product activation/profile, equipment and exercises, workouts and sets, templates, plans, coaching, squads, grants, and entitlements. Gym-owned functions, buckets, secrets, and jobs as features require them. |
 | Plan | A future product boundary. Provision its schema when Plan is built. |
@@ -133,12 +141,16 @@ server credentials where supported. Keep shared Auth mail changes coordinated.
 
 ## Order of work and acceptance
 
+The [profile extraction review](drafts/shared-profiles-review.md) traces the
+existing SQDLY callers and records the home-location decision, local PostgreSQL
+rehearsal, and hosted Preview results.
+
 1. **Record the live Preview baseline.** See the verified snapshot above.
    Recheck project identity and history before applying future changes. Trace web
    profile writes, discovery dependencies, and onboarding in the implementation
    review. Keep the local workout slice independent of this backend work.
 2. **Introduce the shared-profile contract on Preview.** The allowlisted
-   adapter over the existing source of truth is live on Preview. See the
+   adapter was first deployed over the legacy table. See the
    [reviewed SQL](drafts/shared-profile-preview.sql) and the migration version
    above. The RPC accepts no user ID and
    returns zero or one row for the signed-in user. An unselected locale returns
@@ -150,9 +162,8 @@ server credentials where supported. Keep shared Auth mail changes coordinated.
    the legacy profile and baseline role during compatibility. They are not
    activation signals. A Gym-only signup must produce no SQDLY membership, paid
    entitlement, or activity. Existing accounts sign in with the same UUID.
-3. **Extract the approved fields.** Introduce `shared.profiles` additively and
-   reconcile the backfill against UUIDs, stable member numbers, existing profile
-   image references, and saved locale state. Rehearse a coordinated cutover to one
+3. **Extract the approved fields.** The additive shared table and backfill are
+   verified on Preview. SQDLY remains the writer. Rehearse a coordinated cutover to one
    writer and allocator. Keep existing SQDLY reads and writes working through
    compatibility adapters, with any legacy
    values treated as projections. Keep SQDLY discovery fields and product
@@ -222,6 +233,6 @@ and [project restore boundaries](https://supabase.com/docs/guides/platform/clone
   web onboarding and confirm operational and provider limits before release.
 - Confirm the HTTPS callback domain before mobile Auth and agree how to identify
   historically activated SQDLY accounts before changing reporting or lifecycle.
-- Review the proposed city/country field limit, first-release self-profile edits,
+- Verify a reliable home-city source before exposing mini profiles. Review first-release self-profile edits,
   retirement/retention policy, and whole-account deletion UX before implementation.
   The choice of central versus independent Auth after a split is deferred.
